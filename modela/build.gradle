@@ -1,14 +1,19 @@
-apply plugin: 'com.android.application'
+if (isSingleModel.toBoolean()) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
 
 android {
     compileSdkVersion 25
     buildToolsVersion "26.0.0"
+
     defaultConfig {
-        applicationId "modularization.charles.com.modularizationapp"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+
     }
     buildTypes {
         release {
@@ -17,28 +22,23 @@ android {
         }
     }
 
-
     sourceSets {
         main {
             if (isSingleModel.toBoolean()) {
+                manifest.srcFile 'src/main/debug/AndroidManifest.xml'
                 java.srcDirs += "src/main/debug/java/";
             } else {
+                manifest.srcFile 'src/main/release/AndroidManifest.xml'
                 java.srcDirs += "src/main/release/java/";
             }
         }
     }
+    resourcePrefix "module1"
 }
 
 dependencies {
-
-    if (isSingleModel.toBoolean()) {
-        // 如果是单独模块编译
-        compile project(':library')  //添加公共库
-    } else {
-        //添加model  A ..
-        compile project(':ModelA')
-    }
-
-    // router 注解
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':library')  //添加公共库
+    //注解
     annotationProcessor 'com.github.mzule.activityrouter:compiler:1.1.7'
 }
